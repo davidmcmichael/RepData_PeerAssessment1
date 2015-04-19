@@ -1,9 +1,4 @@
----
-title: "Reproducible Research: Peer Assessment 1"
-output: 
-  html_document:
-    keep_md: true
----
+# Reproducible Research: Peer Assessment 1
 ---
 output: html_document
 ---
@@ -34,7 +29,8 @@ The dataset is stored in a comma-separated-value (CSV) file and there are a tota
 
 ##Loading and Cleaning Data
 
-```{r}
+
+```r
 setwd("~/datasciencecoursera/RepData_PeerAssessment1")
 library (knitr)
 library(plyr)
@@ -47,10 +43,22 @@ data$date <- as.Date(data$date)
 summary(data)
 ```
 
+```
+##      steps             date               interval     
+##  Min.   :  0.00   Min.   :2012-10-01   Min.   :   0.0  
+##  1st Qu.:  0.00   1st Qu.:2012-10-16   1st Qu.: 588.8  
+##  Median :  0.00   Median :2012-10-31   Median :1177.5  
+##  Mean   : 37.38   Mean   :2012-10-31   Mean   :1177.5  
+##  3rd Qu.: 12.00   3rd Qu.:2012-11-15   3rd Qu.:1766.2  
+##  Max.   :806.00   Max.   :2012-11-30   Max.   :2355.0  
+##  NA's   :2304
+```
+
 
 ##Calculate mean and median steps per day
 
-```{r}
+
+```r
 data.ignore <- na.omit(data)
 
 dailySteps <- rowsum(data.ignore$steps, format(data.ignore$date, '%Y-%m-%d'))
@@ -60,23 +68,39 @@ names(dailySteps) <- ("steps")
 
 Plot a histogram of the total steps per day
 
-```{r}
+
+```r
 hist(dailySteps$steps,
      main = " ",
      breaks = 10,
      xlab = "Total number of steps per day")
 ```
 
+![](PA1_template_files/figure-html/unnamed-chunk-3-1.png) 
+
 Calculate mean and median per day
 
-```{r}
+
+```r
 mean(dailySteps$steps)
+```
+
+```
+## [1] 10766.19
+```
+
+```r
 median(dailySteps$steps)
+```
+
+```
+## [1] 10765
 ```
 
 ## What is the average daily activity pattern?
 
-```{r}
+
+```r
 stepsInterval <- ddply (data,
                         .(interval), 
                         summarize, 
@@ -85,12 +109,21 @@ stepsInterval <- ddply (data,
 
 Plot line graph of the intervals
 
-```{r}
+
+```r
 plot (stepsInterval$interval, stepsInterval$stepMean, type='l', xlab='Daily Intervals', ylab='Mean Steps')
 ```
 
-```{r}
+![](PA1_template_files/figure-html/unnamed-chunk-6-1.png) 
+
+
+```r
 stepsInterval[which.max(stepsInterval$stepMean), ]
+```
+
+```
+##     interval stepMean
+## 104      835 206.1698
 ```
 
 ###Which 5-minute interval, on average across all the days in the dataset, contains the maximum number of steps?
@@ -100,9 +133,15 @@ stepsInterval[which.max(stepsInterval$stepMean), ]
 
 how many missing values are present in the data set?
 
-```{r}
+
+```r
 missing <- is.na(data$steps)
 summary(missing)
+```
+
+```
+##    Mode   FALSE    TRUE    NA's 
+## logical   15264    2304       0
 ```
 
 ###Calculate and report the total number of missing values in the dataset (i.e. the total number of rows with NAs)
@@ -110,13 +149,25 @@ summary(missing)
 
 Fill in the missing data with the overall steps mean
 
-```{r}
+
+```r
 dataset <- data 
 dataset[is.na(dataset)] <- 37.38
 summary(dataset)
 ```
 
-```{r}
+```
+##      steps             date               interval     
+##  Min.   :  0.00   Min.   :2012-10-01   Min.   :   0.0  
+##  1st Qu.:  0.00   1st Qu.:2012-10-16   1st Qu.: 588.8  
+##  Median :  0.00   Median :2012-10-31   Median :1177.5  
+##  Mean   : 37.38   Mean   :2012-10-31   Mean   :1177.5  
+##  3rd Qu.: 37.38   3rd Qu.:2012-11-15   3rd Qu.:1766.2  
+##  Max.   :806.00   Max.   :2012-11-30   Max.   :2355.0
+```
+
+
+```r
 dailySteps2 <- rowsum(dataset$steps, format(dataset$date, '%Y-%m-%d'))
 dailySteps2 <- data.frame(dailySteps)
 names(dailySteps2) <- ("steps") 
@@ -124,18 +175,33 @@ names(dailySteps2) <- ("steps")
 
 Plot a histogram of the total steps per day
 
-```{r}
+
+```r
 hist(dailySteps2$steps,
      main = " ",
      breaks = 10,
      xlab = "Total number of steps per day")
 ```
 
+![](PA1_template_files/figure-html/unnamed-chunk-11-1.png) 
+
 Calculate mean and median per day
 
-```{r}
+
+```r
 mean(dailySteps2$steps)
+```
+
+```
+## [1] 10766.19
+```
+
+```r
 median(dailySteps2$steps)
+```
+
+```
+## [1] 10765
 ```
 
 ###What is the impact of imputing missing data on the estimates of the total daily number of steps?
@@ -145,7 +211,8 @@ median(dailySteps2$steps)
 
 First, seperate data between weekday and weekend
 
-```{r}
+
+```r
 weekdays <- weekdays(as.Date(dataset$date))
 dataset$dayTypes <- factor (weekdays,
                           levels <- c ('weekday', 'weekend'))
@@ -156,7 +223,8 @@ dataset$dayTypes[weekdays %in% c ('Saturday', 'Sunday')] <- 'weekend'
 
 Lastly, including the lattice library, transforms and plot the factor variables to determine if there is a difference
 
-```{r}
+
+```r
 library(lattice)
 
 stepsInterval2 <- ddply (dataset,
@@ -170,5 +238,7 @@ xyplot (stepMean ~ interval | dayTypes,
         type='l',
         layout=c (1, 2))
 ```
+
+![](PA1_template_files/figure-html/unnamed-chunk-14-1.png) 
 
 ###Conclusion, there is a difference between activity on weekdays versus weekends.  
